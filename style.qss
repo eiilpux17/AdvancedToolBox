@@ -1,0 +1,27 @@
+﻿AdvancedToolBox::separator{
+    width:1px;
+    background: red;
+}
+
+AdvancedToolBox::tab{
+    padding: 10px;
+    border: 0px solid;
+    background: #ADADAD;
+    color: white;
+}
+
+AdvancedToolBox::tab:hover{
+    color: red;
+}
+
+AdvancedToolBox::branch:closed{
+    image: url(:/images/right_arrow.svg);
+    width: 30px;
+    padding: 5px;
+}
+
+AdvancedToolBox::branch{
+    image: url(:/images/right_arrow_down.svg);
+    width: 30px;
+    padding: 5px;
+}
