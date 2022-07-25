@@ -439,7 +439,7 @@ QIcon AdvancedToolBox::itemIcon(int index)
     Q_D(AdvancedToolBox);
     auto item = d->items.value(index);
     if(item)
-        return item->tabTitle->text();
+        return item->tabTitle->icon();
     return QIcon();
 }
 
