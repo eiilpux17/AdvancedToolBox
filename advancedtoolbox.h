@@ -14,6 +14,7 @@ class AdvancedToolBox : public QWidget
     Q_OBJECT
 public:
     explicit AdvancedToolBox(QWidget *parent = nullptr);
+    ~AdvancedToolBox();
     void addWidget(QWidget * widget, const QString & label, const QIcon & icon = QIcon());
     int indexOf(QWidget * widget);
     QWidget * takeIndex(int index);

@@ -118,6 +118,7 @@ class ToolBoxTitle : public QAbstractButton
             break;
             case QEvent::HoverLeave:
                 hoverBranch = false;
+            break;
             case QEvent::MouseButtonPress:
             {
                 QMouseEvent *me = static_cast<QMouseEvent *>(e);
@@ -359,6 +360,11 @@ AdvancedToolBox::AdvancedToolBox(QWidget *parent)
     , d_ptr(new AdvancedToolBoxPrivate(this))
 {
     setAcceptDrops(true);
+}
+
+AdvancedToolBox::~AdvancedToolBox()
+{
+
 }
 
 void AdvancedToolBox::addWidget(QWidget *widget, const QString &label, const QIcon &icon)
@@ -746,7 +752,7 @@ void AdvancedToolBoxPrivate::setIndentation(int i)
         indent = q_ptr->style()->pixelMetric(QStyle::PM_TreeViewIndentation, nullptr, q_ptr);
     else
         indent = i;
-    if(old = indent)
+    if(old != indent)
     {
         updateTitleIndent();
     }
