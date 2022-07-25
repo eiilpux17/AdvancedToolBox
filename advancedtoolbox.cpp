@@ -208,7 +208,7 @@ class ToolBoxTitle : public QAbstractButton
         if(!tabopt.text.isEmpty())
         {
             tabopt.icon = QIcon();
-            // 使用 QStyleOptionTab 绘制文本，支持样式对齐
+            // QStyleOptionToolBox固定左对齐。可以考虑使用 QStyleOptionTab 绘制文本，以支持样式对齐，不过默认是居中样式。
             style()->drawControl(QStyle::CE_ToolBoxTabLabel, &tabopt, &painter, parent);
         }
     }
