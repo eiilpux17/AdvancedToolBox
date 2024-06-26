@@ -15,6 +15,10 @@ class AdvancedToolBox : public QWidget
 public:
     explicit AdvancedToolBox(QWidget *parent = nullptr);
     ~AdvancedToolBox();
+
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
+
     void addWidget(QWidget * widget, const QString & label, const QIcon & icon = QIcon());
     int indexOf(QWidget * widget);
     QWidget * takeIndex(int index);

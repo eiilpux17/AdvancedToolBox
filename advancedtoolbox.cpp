@@ -276,11 +276,12 @@ class AdvancedToolBoxPrivate : public QObject
     void updateTitleIndent();
     void resetManualSize();
     void widgetDestroyed(QObject *o);
+    void resetSizeHint();
 
   protected:
     int indent = 10;
     int handleWidth = 5;
-    QSize contentsSize;
+    int minHeightHint = -1;
     int boxSpacing = 0;
     QList<ToolBoxItem *> items;
 
@@ -365,6 +366,19 @@ AdvancedToolBox::AdvancedToolBox(QWidget *parent)
 AdvancedToolBox::~AdvancedToolBox()
 {
 
+}
+
+QSize AdvancedToolBox::sizeHint() const
+{
+    return minimumSizeHint();
+}
+
+QSize AdvancedToolBox::minimumSizeHint() const
+{
+    Q_D(const AdvancedToolBox);
+    if(d->minHeightHint <= 0)
+        return QSize(100, -1);
+    return QSize(100, d->minHeightHint);
 }
 
 void AdvancedToolBox::addWidget(QWidget *widget, const QString &label, const QIcon &icon)
@@ -471,6 +485,7 @@ bool AdvancedToolBox::event(QEvent *e)
             Q_D(AdvancedToolBox);
             for(auto item : d->items)
                 item->calItemSize();
+            d->resetSizeHint();
             d->doLayout();
         }
         break;
@@ -479,9 +494,12 @@ bool AdvancedToolBox::event(QEvent *e)
             Q_D(AdvancedToolBox);
             int old = d->handleWidth;
             d->styleChangedEvent();
-            if(old != d->handleWidth)
-                d->doLayout();
             d->updateTitleIndent();
+            if(old != d->handleWidth)
+            {
+                d->resetSizeHint();
+                d->doLayout();
+            }
         }
         break;
         case QEvent::Resize:
@@ -724,12 +742,17 @@ void AdvancedToolBoxPrivate::setIndexVisible(int index, bool visible)
     if(!item)
         return;
 
+    if((item->widget->isHidden() && !visible) || !item->widget->isHidden() && visible)
+        return;
+
     item->widget->setVisible(visible);
     item->tabTitle->setVisible(visible);
     item->tabContainer->setVisible(visible);
 
     if(!visible && item->isExpanded)
         item->manualSize = item->layoutSize;
+
+    resetSizeHint();
 
     if(visible)
         resetManualSize();
@@ -792,6 +815,7 @@ void AdvancedToolBoxPrivate::insertWidgetToList(int index, QWidget *widget, cons
             widget->show();
 
         item->calItemSize();
+        resetSizeHint();
         connect(widget, &QWidget::destroyed, this, &AdvancedToolBoxPrivate::widgetDestroyed);
         doLayout();
     }
@@ -801,8 +825,6 @@ void AdvancedToolBoxPrivate::doLayout()
 {
     resetPages();
     Q_Q(AdvancedToolBox);
-
-    const int hw = handleWidth;
 
     int visibleCount = 0;
     int totalSize = 0;
@@ -824,7 +846,7 @@ void AdvancedToolBoxPrivate::doLayout()
         totalSize += item->tabTitle->sizeHint().height(); // title height
         totalSize += item->layoutSize;
     }
-    totalSize += (hw * (visibleCount - 1));
+    totalSize += (handleWidth * (visibleCount - 1));
 
     QRect cr = q->rect();
     if(cr.height() != totalSize)
@@ -882,6 +904,12 @@ void AdvancedToolBoxPrivate::doLayout()
             item->layoutSize += add;
         }
     }
+
+    for(auto item : items)
+    {
+        if(item->isHidden())
+            continue;
+    }
     updateGeometries();
 }
 
@@ -890,6 +918,7 @@ void AdvancedToolBoxPrivate::expandStateChanged(int index, bool expand)
     ToolBoxItem *curr = items.value(index);
     if(!curr)
         return;
+
     curr->tabTitle->setExpanded(expand);
     if(expand)
     {
@@ -1087,11 +1116,15 @@ void AdvancedToolBoxPrivate::updateGeometries(bool animate)
         offset += h;
         first = false;
     }
-    contentsSize = QSize(cr.width(), offset);
     boxSpacing = cr.bottom() - (offset - 1);
     if(group)
     {
+        connect(group, &QVariantAnimation::finished, this, &AdvancedToolBoxPrivate::resetSizeHint);
         group->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+    else
+    {
+        resetSizeHint();
     }
     nextIsAnimation = false;
 }
@@ -1238,6 +1271,30 @@ void AdvancedToolBoxPrivate::widgetDestroyed(QObject *o)
                 break;
             }
         }
+    }
+}
+
+void AdvancedToolBoxPrivate::resetSizeHint()
+{
+    int visibleCount = 0;
+    int min_h_h = 0;
+    for(auto item : items)
+    {
+        if(item->widget->isHidden())
+            continue;
+        visibleCount++;
+        if(item->expanded())
+            min_h_h += item->minSize;
+        const int t = item->tabTitle->sizeHint().height();
+        min_h_h += t;
+    }
+    const int hw = handleWidth * (visibleCount - 1);
+    min_h_h += hw;
+    if(minHeightHint != min_h_h)
+    {
+        minHeightHint = min_h_h;
+        Q_Q(AdvancedToolBox);
+        q->updateGeometry();
     }
 }
 

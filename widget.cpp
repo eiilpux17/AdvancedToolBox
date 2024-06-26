@@ -2,6 +2,7 @@
 #include "ui_widget.h"
 #include <QAction>
 #include <QDebug>
+#include <QScrollArea>
 #include <QTimer>
 #include "advancedtoolbox.h"
 
@@ -10,8 +11,10 @@ Widget::Widget(QWidget *parent) :
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
+
+    QScrollArea * scroll = new QScrollArea(this);
+    scroll->setWidgetResizable(true);
     toolBox = new AdvancedToolBox(this);
-    ui->verticalLayout->insertWidget(1, toolBox, 1);
     QFrame * frame = new QFrame(toolBox);
     frame->setStyleSheet("QFrame{background:#E8BD92;}");
     frame->setMaximumHeight(300);
@@ -32,6 +35,8 @@ Widget::Widget(QWidget *parent) :
     frame->setStyleSheet("QFrame{background:#82C7D9;}");
     toolBox->addWidget(frame, "DDD");
 
+    scroll->setWidget(toolBox);
+    ui->verticalLayout->insertWidget(1, scroll, 1);
 }
 
 Widget::~Widget()
