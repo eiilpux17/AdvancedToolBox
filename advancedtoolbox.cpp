@@ -138,6 +138,7 @@ class AdvancedToolBoxPrivate : public QObject
 
     bool isAnimationState = false;
     bool nextIsAnimation = false;
+    bool dragSortEnable = true;
 
     AdvancedToolBox *q_ptr = nullptr;
     friend class AdvancedToolBox;
@@ -314,6 +315,12 @@ void AdvancedToolBox::resetTextIndentation(int indent)
 {
     Q_D(AdvancedToolBox);
     d->setIndentation(indent);
+}
+
+void AdvancedToolBox::setDragSortEnable(bool enable)
+{
+    Q_D(AdvancedToolBox);
+    d->dragSortEnable = enable;
 }
 
 bool AdvancedToolBox::event(QEvent *e)
@@ -527,7 +534,8 @@ void AdvancedToolBox::dragLeaveEvent(QDragLeaveEvent *event)
 
 void AdvancedToolBox::startDrag(int index, const QPoint &gpos)
 {
-    if(index >= 0)
+    Q_D(AdvancedToolBox);
+    if(d->dragSortEnable && index >= 0)
     {
         QDrag drag(this);
         QMimeData *data = new QMimeData();

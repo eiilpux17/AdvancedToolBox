@@ -35,6 +35,8 @@ public:
     int textIndentation();
     void resetTextIndentation(int indent = -1);
 
+    void setDragSortEnable(bool enable);
+
 protected:
     bool event(QEvent *e);
     void paintEvent(QPaintEvent *event);
