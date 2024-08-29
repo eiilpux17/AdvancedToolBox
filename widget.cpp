@@ -25,6 +25,8 @@ Widget::Widget(QWidget *parent) :
 
     frame = new QFrame(toolBox);
     frame->setStyleSheet("QFrame{background:#BDE8A7;}");
+    frame->setMinimumHeight(200);
+    frame->setMinimumWidth(500);
     toolBox->addWidget(frame, "BBB", QIcon(":/images/smile.png"));
 
     QWidget * btn = new QPushButton("abc", toolBox);
@@ -32,6 +34,7 @@ Widget::Widget(QWidget *parent) :
     toolBox->addWidget(btn, "CCC", QIcon(":/images/user.png"));
 
     frame = new QFrame(toolBox);
+    frame->setMinimumHeight(200);
     frame->setStyleSheet("QFrame{background:#82C7D9;}");
     toolBox->addWidget(frame, "DDD");
 
