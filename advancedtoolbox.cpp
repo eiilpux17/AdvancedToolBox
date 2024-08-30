@@ -139,6 +139,7 @@ class AdvancedToolBoxPrivate : public QObject
     bool isAnimationState = false;
     bool nextIsAnimation = false;
     bool dragSortEnable = true;
+    bool animationEnable = true;
 
     AdvancedToolBox *q_ptr = nullptr;
     friend class AdvancedToolBox;
@@ -321,6 +322,12 @@ void AdvancedToolBox::setDragSortEnable(bool enable)
 {
     Q_D(AdvancedToolBox);
     d->dragSortEnable = enable;
+}
+
+void AdvancedToolBox::setAnimationEnable(bool enable)
+{
+    Q_D(AdvancedToolBox);
+    d->animationEnable = enable;
 }
 
 bool AdvancedToolBox::event(QEvent *e)
@@ -812,8 +819,9 @@ void AdvancedToolBoxPrivate::expandStateChanged(int index, bool expand)
             }
         }
     }
+
     curr->freezeTarget = true;
-    updateGeometries(true);
+    updateGeometries(animationEnable);
     resetManualSize();
 }
 

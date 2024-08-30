@@ -36,6 +36,7 @@ public:
     void resetTextIndentation(int indent = -1);
 
     void setDragSortEnable(bool enable);
+    void setAnimationEnable(bool enable);
 
 protected:
     bool event(QEvent *e);
