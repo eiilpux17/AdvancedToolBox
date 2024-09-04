@@ -679,8 +679,11 @@ void AdvancedToolBoxPrivate::insertWidgetToList(int index, QWidget *widget, cons
 
 void AdvancedToolBoxPrivate::doLayout()
 {
-    resetPages();
     Q_Q(AdvancedToolBox);
+    if(!q->testAttribute(Qt::WA_Resized))
+        return;
+        
+    resetPages();
 
     int space  = 0;
     QVector<ToolBoxItem *> expandedItems;
@@ -725,6 +728,16 @@ void AdvancedToolBoxPrivate::doLayout()
             }
         }
 
+        // 目前默认按照初始窗口当前尺寸来按比例分配空间
+        // viewsSize变为0, 则认为layoutHeight都因为某些原因为0（不存在布局等）
+        // 此时平均分配
+        auto calcAddSize = [&viewsSize, &expandedItems](int curr, int space){
+            if(viewsSize <= 0)
+                return qCeil(qreal(space) / expandedItems.count());
+            else
+                return qCeil(qreal(space) * curr / viewsSize);
+        };
+
         // 空间不足或者有空余时，调整可伸缩的窗口，按照上一次手动调整后的比例，分配或者压缩空间
         // 先尝试按比例分配空间，超过最大、最小的先处理掉。
         bool done = false;
@@ -735,8 +748,8 @@ void AdvancedToolBoxPrivate::doLayout()
             while(it != expandedItems.end())
             {
                 ToolBoxItem *item = *it;
-                qreal add = qreal(space2) * item->layoutHeight / viewsSize;
-                int prefer = qCeil(item->layoutHeight + add);
+                int prefer = item->layoutHeight + calcAddSize(item->layoutHeight, space2);
+
                 if((space > 0 && prefer > item->maxSize.height()) || (space < 0 && prefer < item->minSize.height()))
                 {
                     int threshold = space > 0 ? item->maxSize.height() : item->minSize.height();
@@ -752,7 +765,7 @@ void AdvancedToolBoxPrivate::doLayout()
         }
         for(ToolBoxItem *item : expandedItems)
         {
-            int add = qCeil(qreal(space2) * item->layoutHeight / viewsSize);
+            int add =  calcAddSize(item->layoutHeight, space2);
             viewsSize -= item->layoutHeight;
             space2 -= add;
             item->layoutHeight += add;
@@ -920,7 +933,7 @@ void AdvancedToolBoxPrivate::updateGeometries(bool animate)
         QRect end(x, offset, width, h);
 
         bool freezeSize = item->freezeTarget;
-        auto resizeTo = [item, th, hw, freezeSize](const QVariant &val)
+        auto resizeTo = [q, item, th, hw, freezeSize](const QVariant &val)
         {
             QRect rect = val.toRect();
             item->tabContainer->setGeometry(rect);
@@ -931,7 +944,7 @@ void AdvancedToolBoxPrivate::updateGeometries(bool animate)
             rect = QRect(rect.left(), rect.top() - th, rect.width(), th);
             item->tabTitle->setGeometry(rect);
 
-            if(item->handle->isVisible())
+            if(item->handle->isVisibleTo(q))
             {
                 rect = QRect(rect.left(), rect.top() - hw, rect.width(), hw);
                 if(hw <= 1)
