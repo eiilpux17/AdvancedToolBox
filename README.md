@@ -2,7 +2,7 @@
 
 由于QToolBox不支持同时展开和折叠tab，功能比较弱。所以用Qt重新实现了一个更好的tool box，仅支持垂直布局。
 
-<img src="https://img.picgo.net/2024/09/24/advance_tool_box18b7a681dcc1cb84.gif" width="400">
+<img src="https://github.com/user-attachments/assets/33845544-f3e8-48c3-bedc-f9f26a3aa64e" width="400">
 
 ### 支持特性：
 
